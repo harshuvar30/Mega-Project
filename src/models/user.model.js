@@ -48,8 +48,9 @@ userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password,this.password)
 }
 
-userSchema.methods.generateAccessToken = async function(){
-    return await jwt.sign({
+userSchema.methods.generateAccessToken =  function(){
+    // console.log("genearteAccessToken called")
+    return  jwt.sign({
         _id:this._id,
         email:this.email,
         username:this.username,
@@ -60,8 +61,9 @@ userSchema.methods.generateAccessToken = async function(){
     }
 )
 }
-userSchema.methods.generateRefreshToken = async function () {
-    return await jwt.sign({
+userSchema.methods.generateRefreshToken =  function () {
+    // console.log("genearteRefreshToken called")
+    return  jwt.sign({
         _id:this._id,
         
     },process.env.REFRESH_TOKEN_SECRET,

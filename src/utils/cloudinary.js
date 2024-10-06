@@ -3,7 +3,7 @@ import fs from "fs"
 import dotenv from "dotenv";
 dotenv.config();
 
-console.log(process.env.CLOUDINARY_API_SECRET)
+// console.log(process.env.CLOUDINARY_API_SECRET)
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
     api_key: process.env.CLOUDINARY_API_KEY,                 //624534957449732, 
@@ -19,8 +19,9 @@ const uploadOnCloudinary = async (localFilePath)=>{
             resource_type:"auto"
         })
         //uploaded
-        console.log("file is uploaded on cloudinary", response)
-        fs.unlinkSync(localFilePath)
+        console.log("file is uploaded on cloudinary here", response)
+        if (fs.existsSync(localFilePath))
+          fs.unlinkSync(localFilePath)
         return response;
 
     }
