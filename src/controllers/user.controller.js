@@ -1,11 +1,12 @@
 //  import req from "express/lib/request.js";
-import { response } from "express";
+import jwt from 'jsonwebtoken'
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import res from "express/lib/response.js";
+import mongoose from 'mongoose';
+
 const generateAccessAndRefreshToken = async (userId) =>{
     try {
         console.log(userId)
@@ -128,13 +129,13 @@ const generateAccessAndRefreshToken = async (userId) =>{
 
  })
 
- const logoutUser = asyncHandler(async (req,res) =>{
+const logoutUser = asyncHandler(async (req,res) =>{
     // remove cookies
     // res.clearCookie("accessToken");
    await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: { refreshToken: undefined },
+            $unset: { refreshToken: 1 },
         },
         { new: true }
     )
@@ -150,7 +151,7 @@ const generateAccessAndRefreshToken = async (userId) =>{
  })
 
  const refreshAccessToken = asyncHandler(async(req,res) =>{
-    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
     if(!incomingRefreshToken){
         throw new ApiError(401,"Unathorized request")
@@ -172,7 +173,9 @@ const generateAccessAndRefreshToken = async (userId) =>{
             httpOnly:true,
             secure:true
         }
-        const {accessToken,newRefreshToken} = generateAccessAndRefreshToken(user._id)
+        const {accessToken,newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+        // console.log("we got access token :",accessToken)
+        // console.log("we got access refresh token :",newRefreshToken)
 
         return res
         .status(200)
@@ -410,7 +413,6 @@ const getWatchHistory = asyncHandler(async (req,res) =>{
  export {registerUser,
     loginUser,
     logoutUser,
-    loginUser,
     refreshAccessToken,
     changeCurrentPassword,
     getCurrentUser,
