@@ -117,12 +117,58 @@ const updateVideo = asyncHandler(async(req,res)=>{
         new ApiResponse(200,video,"Video updated successfully")
     )
 })
+const getAllVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query = '', sortBy = 'createdAt', sortType = 'desc', userId } = req.query;
 
+    // Convert page and limit to numbers
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    // Build the match filter (for search or filtering by user)
+    const match = {
+        isPublished: true, // To ensure only published videos are returned
+        $or: [
+            { title: { $regex: query, $options: "i" } }, // Case-insensitive search by title
+            { description: { $regex: query, $options: "i" } } // Case-insensitive search by description
+        ]
+    };
+
+    // If userId is provided, filter videos by the owner (user)
+    if (userId) {
+        match.owner = userId;
+    }
+
+    try {
+        // Fetch videos with pagination, sorting, and filtering
+        const videos = await Video.find(match)
+            .sort({ [sortBy]: sortType === 'asc' ? 1 : -1 }) // Sorting
+            .skip((pageNumber - 1) * limitNumber) // Pagination
+            .limit(limitNumber)
+            .populate('owner', 'username fullname avatar'); // Populate owner details
+
+        // Count total documents for pagination
+        const totalVideos = await Video.countDocuments(match);
+
+        return res.status(200).json(
+           new ApiResponse (
+            200,
+            {
+            data: videos,
+            page: pageNumber,
+            limit: limitNumber,
+            totalPages: Math.ceil(totalVideos / limitNumber),
+            totalVideos,
+        },'All videos fetched successfully!'));
+    } catch (error) {
+        throw new ApiError(500, "Failed to retrieve videos");
+    }
+});
 
 
 export {
     getVideoById,
     publishVideo,
     deleteVideo,
-    updateVideo
+    updateVideo,
+    getAllVideos
 }
