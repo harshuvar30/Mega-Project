@@ -102,6 +102,7 @@ const getAllComments = asyncHandler(async (req, res) => {
   
 
 const addComment  = asyncHandler(async(req,res)=>{
+  // console.log(req.body)
     const{ videoId }= req.params;
     const {content} = req.body;
     const userId = req.user?._id;

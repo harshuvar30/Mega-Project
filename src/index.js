@@ -1,39 +1,25 @@
 import dotenv from "dotenv";
 dotenv.config({
-    path: "./.env"
+  path: "./.env",
 });
 import mongoose from "mongoose";
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
 
-
 const port = process.env.PORT || 4000;
 connectDB()
-.then(()=>{
-  app.on("error",(error)=>{
-    console.log("ERROR :",error);
-    throw error;
+  .then(() => {
+    app.on("error", (error) => {
+      console.log("ERROR :", error);
+      throw error;
+    });
+    app.listen(port, () => {
+      console.log(`Server isrunning on port ${port}`);
+    });
   })
-  app.listen(port, () => {
-    console.log(`Server isrunning on port ${port}`);
-  })
-
-})
-.catch((err)=>{
-    console.log("MONGO db connection faild !! ",err);
-})
-
-
-
-
-
-
-
-
-
-
-
-
+  .catch((err) => {
+    console.log("MONGO db connection faild !! ", err);
+  });
 
 //one way to connect to db
 // function connnectDB(){
@@ -42,14 +28,6 @@ connectDB()
 // connnectDB();
 
 // iffy or once function
-
-
-
-
-
-
-
-
 
 // import express from 'express'
 // const app = express();
@@ -69,5 +47,5 @@ connectDB()
 //         console.error("ERROR:",error)
 //         throw err
 //     }
-    
+
 //     })() // can add ; for cleaning purposes
