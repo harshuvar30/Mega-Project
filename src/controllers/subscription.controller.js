@@ -3,6 +3,7 @@ import { Subscription } from "../models/subscription.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import mongoose, { isValidObjectId } from "mongoose";
 
 const toggleSubscription = asyncHandler(async(req,res)=>{
     const {channelId} = req.params;
@@ -52,7 +53,7 @@ const getUserChannelSubscribers = asyncHandler(async(req,res)=>{
       },
       {
         $facet: {
-          subscribers: [
+          subscribedUsers: [
             {
               $lookup: {
                 from: "users",
@@ -72,13 +73,13 @@ const getUserChannelSubscribers = asyncHandler(async(req,res)=>{
             },
             {
               $addFields: {
-                subscribers: {
-                  $first: "$subscribers",
+                subscriber: {
+                  $first: "$subscriber",
                 },
               },
             },
           ],
-          subscribersCount: [{ $count: "subscribers" }],
+          subscribersCount: [{ $count: "subscriber" }],
         },
       },
     ]);
